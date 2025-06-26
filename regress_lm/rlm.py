@@ -38,7 +38,7 @@ class RegressLM:
     self.fine_tuner.fine_tune(examples, validation_examples)
 
   @classmethod
-  def from_default(cls) -> "RegressLM":
+  def from_default(cls, **kwargs) -> "RegressLM":
     """Creates a RegressLM with default model and finetuner."""
 
     encoder_vocab = vocabs.SentencePieceVocab.from_t5()
@@ -46,13 +46,13 @@ class RegressLM:
     model = pytorch_model.PyTorchModel(
         encoder_vocab=encoder_vocab,
         decoder_vocab=decoder_vocab,
-        max_input_len=2048,
-        learning_rate=1e-4,
-        d_model=512,
-        nhead=8,
-        num_encoder_layers=2,
-        num_decoder_layers=2,
-        dim_feedforward=2048,
+        max_input_len=kwargs.get("max_input_len", 2048),
+        learning_rate=kwargs.get("learning_rate", 1e-4),
+        d_model=kwargs.get("d_model", 512),
+        nhead=kwargs.get("nhead", 8),
+        num_encoder_layers=kwargs.get("num_encoder_layers", 2),
+        num_decoder_layers=kwargs.get("num_decoder_layers", 2),
+        dim_feedforward=kwargs.get("dim_feedforward", 2048),
     )
 
     fine_tuner = pytorch_model.PyTorchFineTuner(model)

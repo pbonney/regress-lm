@@ -7,12 +7,12 @@ string representation and allows pretraining and fine-tuning over multiple
 regression tasks.
 
 ## Usage
-There are two main stages: inference pretraining (optional).
+There are two main stages: **inference** and **pretraining** (optional).
 
 ## Inference
-The overall use-case is to import a RegressLM
-class, which can decode floating-point predictions from a given input, and also
-gradient update against new data.
+The overall use-case is to import a RegressLM class, which can decode
+floating-point predictions from a given input, and also gradient update against
+new data.
 
 ```python
 from regress_lm import core

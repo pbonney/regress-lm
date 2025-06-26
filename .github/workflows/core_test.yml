@@ -33,3 +33,6 @@ jobs:
       - name: Print installed dependencies
         run: |
           pip freeze
+      # - name: Run tests (pytorch vs torchtext version C++ conflicts)
+        # run: |
+        #   pytest -n auto regress_lm

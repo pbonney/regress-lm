@@ -1,4 +1,5 @@
 numpy
+ordered-set
 
 # Technically optional below. Consider using try/except import handling.
 torch

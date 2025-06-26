@@ -23,7 +23,6 @@ import math
 import re
 from typing import Generic, TypeVar
 
-import attrs
 import numpy as np
 import ordered_set
 
@@ -75,7 +74,6 @@ class DecoderTokenizer(abc.ABC, Generic[ObjectT]):
     """Converts a string of tokens to an object."""
 
 
-@attrs.define
 class P10Tokenizer(DecoderTokenizer[float]):
   """Uses P10 tokenization from https://arxiv.org/abs/2112.01898.
 
@@ -96,8 +94,9 @@ class P10Tokenizer(DecoderTokenizer[float]):
       floats.
   """
 
-  num_digits: int = attrs.field(default=4)
-  exponent_range: int = attrs.field(default=10)
+  def __init__(self, num_digits: int = 4, exponent_range: int = 10):
+    self.num_digits = num_digits
+    self.exponent_range = exponent_range
 
   @property
   def num_tokens_per_obj(self) -> int:
@@ -170,7 +169,6 @@ class P10Tokenizer(DecoderTokenizer[float]):
     return float(sign * mantissa * 10**exp)
 
 
-@attrs.define(kw_only=True)
 class IEEEFloatTokenizer(DecoderTokenizer[float]):
   """More official float tokenizer, minimizing the use of dedicated tokens.
 
@@ -190,10 +188,15 @@ class IEEEFloatTokenizer(DecoderTokenizer[float]):
   if b=10, num_exponent_digits=3, and num_mantissa_digits=4.
   """
 
-  base: int = attrs.field(default=10)
-
-  num_exponent_digits: int = attrs.field(default=1)
-  num_mantissa_digits: int = attrs.field(default=4)
+  def __init__(
+      self,
+      base: int = 10,
+      num_exponent_digits: int = 1,
+      num_mantissa_digits: int = 4,
+  ):
+    self.base = base
+    self.num_exponent_digits = num_exponent_digits
+    self.num_mantissa_digits = num_mantissa_digits
 
   @property
   def num_tokens_per_obj(self) -> int:

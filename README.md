@@ -1,5 +1,5 @@
 # RegressLM: Easy Text-to-Text Regression
-[![Continuous Integration](https://github.com/google-deepmind/regress_lm/actions/workflows/core_test.yml/badge.svg)](https://github.com/google-deepmind/regress_lm/actions?query=branch%3Amain)
+[![Continuous Integration](https://github.com/google-deepmind/regress-lm/actions/workflows/core_test.yml/badge.svg)](https://github.com/google-deepmind/regress-lm/actions?query=branch%3Amain)
 
 ## Overview
 RegressLM is a library for text-to-text regression, applicable to any input

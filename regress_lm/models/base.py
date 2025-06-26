@@ -15,7 +15,7 @@
 """Base class for a RegressLM model."""
 
 import abc
-from typing import Generic, Iterable, TypeVar
+from typing import Generic, Sequence, TypeVar
 import numpy as np
 from regress_lm import core
 
@@ -34,29 +34,10 @@ class Model(Generic[TensorT], abc.ABC):
   """
 
   @abc.abstractmethod
-  def update(self, xy: dict[str, TensorT]) -> dict[str, TensorT]:
-    """Updates the regressor with low-level gradient logic on few examples.
-
-    Args:
-      xy: Dict of tensors to be used for training.
-
-    Returns:
-      Dict of tensors for metrics and auxiliary outputs.
-    """
-
-  @abc.abstractmethod
-  def pretrain(self, ds: Iterable[dict[str, TensorT]]) -> dict[str, TensorT]:
-    """Pretrains the model with a dataset.
-
-    Similar in spirit to calling update() for multiple iterations, but may be
-    implemented differently to absorb lots of data.
-
-    Args:
-      ds: Iterable of examples to pretrain on.
-
-    Returns:
-      Dict of tensors for metrics and auxiliary outputs.
-    """
+  def compute_loss_and_metrics(
+      self, examples: dict[str, TensorT]
+  ) -> tuple[TensorT, dict[str, TensorT]]:
+    """Computes loss and metrics for the given examples."""
 
   @abc.abstractmethod
   def decode(
@@ -65,17 +46,40 @@ class Model(Generic[TensorT], abc.ABC):
     """Decodes tokens and returns them and corresponding floats."""
 
   @abc.abstractmethod
-  def log_prob(self, example: dict[str, TensorT]) -> TensorT:
+  def log_prob(self, examples: dict[str, TensorT]) -> TensorT:
     """Returns log probability of y given x."""
 
   @abc.abstractmethod
   def convert_inputs(
-      self, inputs: list[core.ExampleInput]
+      self, inputs: Sequence[core.ExampleInput]
   ) -> dict[str, TensorT]:
     """Converts high-level inputs to batched low-level inputs."""
 
   @abc.abstractmethod
   def convert_examples(
-      self, examples: list[core.Example]
+      self, examples: Sequence[core.Example]
   ) -> dict[str, TensorT]:
     """Converts high-level examples to batched low-level examples."""
+
+
+class FineTuner(abc.ABC):
+
+  @abc.abstractmethod
+  def fine_tune(
+      self,
+      examples: Sequence[core.Example],
+      validation_examples: Sequence[core.Example] | None = None,
+  ) -> None:
+    """Fine-tunes the model on the given examples.
+
+    For full compatibility, assumes the model is stateful and changes itself
+    (hence the return being None).
+
+    Args:
+      examples: Training examples.
+      validation_examples: Validation examples for early-stopping. If None, uses
+        training examples.
+
+    Returns:
+      None
+    """

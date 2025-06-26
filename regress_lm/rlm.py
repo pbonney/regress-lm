@@ -1,0 +1,67 @@
+# Copyright 2025 Google LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Very high-level class for users."""
+
+from typing import Sequence
+import numpy as np
+from regress_lm import core
+from regress_lm import tokenizers
+from regress_lm import vocabs
+from regress_lm.models import base as model_base
+from regress_lm.models.pytorch import model as pytorch_model
+
+
+class RegressLM:
+  """User-facing API for RegressLM."""
+
+  def __init__(self, model: model_base.Model, fine_tuner: model_base.FineTuner):
+    self.model = model
+    self.fine_tuner = fine_tuner
+
+  def fine_tune(
+      self,
+      examples: Sequence[core.Example],
+      validation_examples: Sequence[core.Example] | None = None,
+  ):
+    self.fine_tuner.fine_tune(examples, validation_examples)
+
+  @classmethod
+  def from_default(cls) -> "RegressLM":
+    """Creates a RegressLM with default model and finetuner."""
+
+    encoder_vocab = vocabs.SentencePieceVocab.from_t5()
+    decoder_vocab = vocabs.DecoderVocab(tokenizers.P10Tokenizer())
+    model = pytorch_model.PyTorchModel(
+        encoder_vocab=encoder_vocab,
+        decoder_vocab=decoder_vocab,
+        max_input_len=2048,
+        learning_rate=1e-4,
+        d_model=512,
+        nhead=8,
+        num_encoder_layers=2,
+        num_decoder_layers=2,
+        dim_feedforward=2048,
+    )
+
+    fine_tuner = pytorch_model.PyTorchFineTuner(model)
+    return cls(model, fine_tuner)
+
+  def sample(
+      self, xs: Sequence[core.ExampleInput], num_samples: int
+  ) -> Sequence[np.ndarray]:
+    """Samples from the model."""
+    examples = self.model.convert_inputs(xs)
+    _, output_floats = self.model.decode(examples, num_samples)
+    return output_floats.split(axis=0)

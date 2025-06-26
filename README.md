@@ -52,4 +52,8 @@ for _ in range(...):
   optimizer.step()
 ```
 
+## Authors and Contributors
+Xingyou Song, Yash Akhauri, Dara Bahri, Michal Lukasik, Arissa Wongpanich,
+Adrian N. Reyes, Bryan Lewandowski
+
 **Disclaimer:** This is not an officially supported Google product.

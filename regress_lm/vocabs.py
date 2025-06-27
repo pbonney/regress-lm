@@ -112,7 +112,7 @@ class BasicEnglishVocab(EncoderVocab[str]):
 class SentencePieceVocab(EncoderVocab[str]):
   """SentencePiece vocab."""
 
-  T5_FILE = '/bigstore/t5-data/vocabs/cc_all.32000.100extra/sentencepiece.model'
+  T5_FILE = 'gs://t5-data/vocabs/cc_all.32000.100extra/sentencepiece.model'
 
   def __init__(self, file_path: str):
     """Initializes SentencePieceVocab by loading a pre-trained .model file."""

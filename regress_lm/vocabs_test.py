@@ -18,6 +18,28 @@ from regress_lm import vocabs
 from absl.testing import absltest
 
 
+class BasicEnglishVocabTest(absltest.TestCase):
+
+  def test_basic_runs(self):
+    vocab = vocabs.BasicEnglishVocab(["hello", "world"])
+    self.assertEqual(vocab.pad_id, 0)
+    self.assertLen(vocab, 4)
+    self.assertEqual(vocab.to_token_ids("hello world foo"), [2, 3, 1])
+
+
+class StructuredTextVocabTest(absltest.TestCase):
+
+  def test_basic_runs(self):
+    vocab = vocabs.StructuredTextVocab(
+        tokens=["{", "}", "[", "]", ",", ":", "abc", "xyz"],
+        split_regex=r"(:)",
+    )
+    self.assertEqual(vocab.pad_id, 0)
+    self.assertLen(vocab, 10)
+    # TODO: pre_tokenizer is being completely ignored here.
+    self.assertEqual(vocab.to_token_ids("{abc:xyz,xyz:abc}"), [1])
+
+
 class SentencePieceVocabTest(absltest.TestCase):
 
   def test_basic_runs(self):

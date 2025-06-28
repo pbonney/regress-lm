@@ -1,8 +1,11 @@
 absl-py
 numpy
-ordered-set
 
-# Technically optional below. Consider using try/except import handling.
-torch==2.3.0
-torchtext==0.18.0
+# For vocabs.
+ordered-set
+gcsfs  # For GCS vocab files.
+tokenizers
 sentencepiece
+
+# For default model.
+torch

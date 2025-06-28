@@ -15,10 +15,9 @@
 """Custom vocab classes for RegressLM."""
 
 import abc
-import collections
 from typing import Generic, TypeVar
 from regress_lm import tokenizers
-import torchtext as tt
+import tokenizers as ht
 import sentencepiece as sp
 
 ObjectT = TypeVar('ObjectT')
@@ -53,30 +52,26 @@ class DecoderVocab(BaseVocab[ObjectT]):
 
   def __init__(self, tokenizer: tokenizers.DecoderTokenizer[ObjectT]):
     self.tokenizer = tokenizer
-    self.tt_vocab = tt.vocab.Vocab(
-        counter=collections.Counter(
-            {t: 1 for t in self.tokenizer.all_tokens()}
-        ),
-        specials=['<pad>'],
-    )
+
+    self.itos = ['<pad>'] + sorted(self.tokenizer.all_tokens())
+    self.stoi = {token: i for i, token in enumerate(self.itos)}
 
   def to_token_ids(self, obj: ObjectT, /) -> list[int]:
-    """Converts object to token ids."""
-    return [self.tt_vocab[t] for t in self.tokenizer.to_tokens(obj)]
+    return [self.stoi[t] for t in self.tokenizer.to_tokens(obj)]
 
   def from_token_ids(self, token_ids: list[int], /) -> ObjectT:
     """Converts token ids to object."""
-    token_strs = [self.tt_vocab.itos[id] for id in token_ids]
+    token_strs = [self.itos[id] for id in token_ids]
     return self.tokenizer.from_tokens(token_strs)
 
   def token_ids_at_index(self, index: int) -> list[int]:
     """Returns the token ids for the given index."""
-    return [self.tt_vocab[t] for t in self.tokenizer.tokens_at_index(index)]
+    return [self.stoi[t] for t in self.tokenizer.tokens_at_index(index)]
 
   @property
   def bos_pad_id(self) -> int:
     """Returns the BOS / PAD id for the decoder."""
-    return self.tt_vocab['<pad>']
+    return self.stoi['<pad>']
 
   @property
   def decode_len(self) -> int:
@@ -85,28 +80,74 @@ class DecoderVocab(BaseVocab[ObjectT]):
 
   def __len__(self) -> int:
     """Returns the vocab size."""
-    return len(self.tt_vocab)
+    return len(self.stoi)
 
 
 class BasicEnglishVocab(EncoderVocab[str]):
   """Basic English vocab for testing."""
 
   def __init__(self, words: list[str]):
-    self.tokenizer = tt.data.utils.get_tokenizer('basic_english')
-    self.vocab = tt.vocab.Vocab(
-        collections.Counter({w: 1 for w in words}), specials=['<pad>', '<unk>']
+    specials = ['<pad>', '<unk>']
+    # Build vocab dictionary ensuring special tokens have fixed IDs 0 and 1.
+    vocab = {word: i + len(specials) for i, word in enumerate(words)}
+    for i, token in enumerate(specials):
+      vocab[token] = i
+
+    # Instantiate a huggingface tokenizer with a WordLevel model
+    self.tokenizer = ht.Tokenizer(
+        ht.models.WordLevel(vocab=vocab, unk_token='<unk>')
     )
+    self.tokenizer.normalizer = ht.normalizers.Lowercase()
+    self.tokenizer.pre_tokenizer = ht.pre_tokenizers.Whitespace()
+
+    pad_id_val = self.tokenizer.token_to_id('<pad>')
+    if pad_id_val is None:
+      raise ValueError("'<pad>' token not found in the vocabulary.")
+    self._pad_id = pad_id_val
 
   def to_token_ids(self, obj: str) -> list[int]:
-    tokenized = self.tokenizer(obj)
-    return [self.vocab[t] for t in tokenized]
+    return self.tokenizer.encode(obj).ids
 
   @property
   def pad_id(self) -> int:
+    return self._pad_id
+
+  def __len__(self) -> int:
+    return self.tokenizer.get_vocab_size()
+
+
+class StructuredTextVocab(EncoderVocab[str]):
+  """For structured text, ideal for custom formats like JSON or DSLs.
+
+  NOTE: Not working right now, pre_tokenizer is being completely ignored.
+  """
+
+  def __init__(self, tokens: list[str], split_regex: str = r'([\{\}\[\]:,])'):
+    specials = ['<pad>', '<unk>']
+
+    self.vocab = {token: i + len(specials) for i, token in enumerate(tokens)}
+    self.vocab.update({special: i for i, special in enumerate(specials)})
+
+    self.tokenizer = ht.Tokenizer(
+        ht.models.WordLevel(vocab=self.vocab, unk_token='<unk>')
+    )
+    pre_tokenizer = ht.pre_tokenizers.Split(
+        pattern=split_regex, behavior='isolated'
+    )
+    self.tokenizer.pre_tokenizer = pre_tokenizer
+
+  def to_token_ids(self, obj: str) -> list[int]:
+    """Converts a structured string to a list of token IDs."""
+    return self.tokenizer.encode(obj).ids
+
+  @property
+  def pad_id(self) -> int:
+    """Returns the pad id."""
     return self.vocab['<pad>']
 
   def __len__(self) -> int:
-    return len(self.vocab)
+    """Returns the total vocabulary size."""
+    return self.tokenizer.get_vocab_size()
 
 
 class SentencePieceVocab(EncoderVocab[str]):
@@ -117,6 +158,14 @@ class SentencePieceVocab(EncoderVocab[str]):
   def __init__(self, file_path: str):
     """Initializes SentencePieceVocab by loading a pre-trained .model file."""
     self.sp_processor = sp.SentencePieceProcessor()
+
+    if file_path.startswith('gs://'):  # Check Google Cloud Storage path.
+      import gcsfs, os
+
+      local_path = f'/tmp/{os.path.basename(file_path)}'
+      gcsfs.GCSFileSystem().get(file_path, local_path)
+      file_path = local_path
+
     self.sp_processor.Load(file_path)
 
     if self.sp_processor.pad_id() == -1:

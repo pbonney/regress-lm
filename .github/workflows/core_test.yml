@@ -33,6 +33,6 @@ jobs:
       - name: Print installed dependencies
         run: |
           pip freeze
-      # - name: Run tests
-      #   run: |
-      #     pytest -n auto regress_lm
+      - name: Run tests
+        run: |
+          pytest -n auto regress_lm

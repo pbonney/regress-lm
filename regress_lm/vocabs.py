@@ -19,7 +19,7 @@ import collections
 from typing import Generic, TypeVar
 from regress_lm import tokenizers
 import torchtext as tt
-from sentencepiece.src.python import sentencepiece_processor as sp
+import sentencepiece as sp
 
 ObjectT = TypeVar('ObjectT')
 

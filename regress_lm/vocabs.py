@@ -163,7 +163,7 @@ class SentencePieceVocab(EncoderVocab[str]):
       import gcsfs, os
 
       local_path = f'/tmp/{os.path.basename(file_path)}'
-      gcsfs.GCSFileSystem().get(file_path, local_path)
+      gcsfs.GCSFileSystem(token='anon').get(file_path, local_path)
       file_path = local_path
 
     self.sp_processor.Load(file_path)

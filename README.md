@@ -6,6 +6,14 @@ RegressLM is a library for text-to-text regression, applicable to any input
 string representation and allows pretraining and fine-tuning over multiple
 regression tasks.
 
+<figure>
+<p align="center" width=65%>
+<img src="https://raw.githubusercontent.com/akhauriyash/figures_placeholder/refs/heads/main/teaser_rlm_compressed.gif" alt="RegressLM decoding a numerical performance metric from text."/>
+  <br>
+  <figcaption style="text-align: center;"><em><b>Example Application: Directly regressing performance metrics from unstructured, textually represented system states from Google's compute clusters.</b></em></figcaption>
+</p>
+</figure>
+
 ## Usage
 There are two main stages: **inference** and **pretraining** (optional).
 

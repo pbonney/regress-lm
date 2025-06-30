@@ -60,8 +60,20 @@ for _ in range(...):
   optimizer.step()
 ```
 
-## Authors and Contributors
-Xingyou Song, Yash Akhauri, Dara Bahri, Michal Lukasik, Arissa Wongpanich,
-Adrian N. Reyes, Bryan Lewandowski
+## Contributors and Citation
+
+The codebase was written by: Xingyou Song, Yash Akhauri, Dara Bahri, Michal
+Lukasik, Arissa Wongpanich, Adrian N. Reyes, and Bryan Lewandowski.
+
+If you find this project useful, please consider citing our work as follows:
+
+```
+@article{akhauri2025performancepredictionlargesystems,
+      title={Performance Prediction for Large Systems via Text-to-Text Regression},
+      author={Yash Akhauri and Bryan Lewandowski and Cheng-Hsi Lin and Adrian N. Reyes and Grant C. Forbes and Arissa Wongpanich and Bangding Yang and Mohamed S. Abdelfattah and Sagi Perel and Xingyou Song},
+      journal={arXiv preprint arXiv:2506.21718},
+      year={2025}
+}
+```
 
 **Disclaimer:** This is not an officially supported Google product.

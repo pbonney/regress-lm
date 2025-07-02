@@ -34,8 +34,13 @@ class RegressLM:
       self,
       examples: Sequence[core.Example],
       validation_examples: Sequence[core.Example] | None = None,
+      max_epochs: int = 100,
+      batch_size: int | None = None,
+      seed: int | None = None,
   ):
-    self.fine_tuner.fine_tune(examples, validation_examples)
+    self.fine_tuner.fine_tune(
+        examples, validation_examples, max_epochs, batch_size, seed
+    )
 
   @classmethod
   def from_default(cls, **kwargs) -> "RegressLM":
@@ -53,6 +58,7 @@ class RegressLM:
         num_encoder_layers=kwargs.get("num_encoder_layers", 2),
         num_decoder_layers=kwargs.get("num_decoder_layers", 2),
         dim_feedforward=kwargs.get("dim_feedforward", 2048),
+        dropout=kwargs.get("dropout", 0.1),
     )
 
     fine_tuner = pytorch_model.PyTorchFineTuner(model)
@@ -64,4 +70,4 @@ class RegressLM:
     """Samples from the model."""
     examples = self.model.convert_inputs(xs)
     _, output_floats = self.model.decode(examples, num_samples)
-    return output_floats.split(axis=0)
+    return [output_floats[i] for i in range(len(xs))]

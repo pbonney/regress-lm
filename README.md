@@ -77,3 +77,23 @@ If you find this project useful, please consider citing our work as follows:
 ```
 
 **Disclaimer:** This is not an officially supported Google product.
+
+## Instructions for local usage
+
+### How to Use the Virtual Environment
+
+To activate the virtual environment (when starting a new terminal session):
+``` bash
+source venv/bin/activate
+```
+
+To deactivate when you're done:
+``` bash
+deactivate
+```
+To verify it's working:
+
+```bash
+python --version  # Should show Python 3.13.3
+pip list  # Shows all installed packages
+```

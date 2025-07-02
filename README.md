@@ -35,7 +35,7 @@ reg_lm.fine_tune(examples)
 
 # Query inputs.
 query1, query2 = core.ExampleInput(x='hi'), core.ExampleInput(x='bye')
-samples1, samples2 = model.sample([query1, query2], num_samples=128)
+samples1, samples2 = reg_lm.sample([query1, query2], num_samples=128)
 ```
 
 ## Pretraining

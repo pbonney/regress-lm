@@ -283,7 +283,7 @@ class PyTorchFineTuner(model_base.FineTuner):
     for _ in range(max_epochs):
       self.model.eval()  # Eval mode.
       val_loss, _ = self.model.compute_loss_and_metrics(validation_tensors)
-      valid_losses.append(val_loss.item())
+      valid_losses.append(val_loss.detach().item())
 
       if _detect_overfitting(valid_losses):
         state = prev_state

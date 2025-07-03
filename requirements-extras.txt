@@ -1,1 +1,7 @@
 # TODO(team): Fill in requirements for extras.
+
+# Additional requirements for loan default prediction and data analysis
+pandas>=1.3.0
+scikit-learn>=1.0.0
+seaborn>=0.11.0
+matplotlib>=3.3.0
